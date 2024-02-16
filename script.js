@@ -177,7 +177,6 @@ class Game {
         this.transition = new Transition(this);
         this.levelIndex = 0;
         this.timer = 0;
-        this.intro = true;
         this.reset();
     }
 
@@ -272,7 +271,6 @@ class Game {
         if (this.checkCollisions(this.player, this.portal)) {
             if (this.levelIndex != 0)
                 colors.push(allColors[colors.length]);
-            this.intro = false;
             this.levelIndex++;
             this.reset();
         }
@@ -302,23 +300,6 @@ class Game {
         this.portal.display();
         this.collisions();
         this.transition.display();
-
-        // Level intro
-        if (!this.intro) {
-            noStroke();
-            fill(red(colors[this.levelIndex + 2]), green(colors[this.levelIndex + 2]), blue(colors[this.levelIndex + 2]), this.timer);
-            textAlign(levels[this.levelIndex].info.align);
-            textFont('monospace');
-            textSize(25);
-            text(levels[this.levelIndex].info.name, levels[this.levelIndex].info.x, levels[this.levelIndex].info.y);
-
-            this.timer += 5;
-            if (this.timer > 1) {
-                this.timer = 0;
-                this.intro = true;
-            }
-        }
-
     }
 }
 
