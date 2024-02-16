@@ -130,6 +130,8 @@ class Block {
 class Game {
     constructor() {
         this.levelIndex = 0;
+        this.death = false;
+        this.timer = 0;
         this.reset();
     }
 
@@ -214,7 +216,7 @@ class Game {
             for (const block of this.blocks) {
                 if (block.colorIndex == colors.length - 1) {
                     if (this.checkCollisions(this.player, block)) {
-                        this.reset()
+                        this.death = true;
                     }
                 }
             }
@@ -248,9 +250,30 @@ class Game {
             b.display();
         }
         this.player.display();
-        this.player.update();
+        if (!this.death)
+            this.player.update();
         this.portal.display();
         this.collisions();
+
+        // Player death transition
+        if (this.death) {
+            this.player.xv = 0;
+            this.player.yv = 0;
+
+            noStroke();
+            fill(colors[this.levelIndex + 2]);
+            rect(this.timer * 0.8 - 500, 0, this.timer, 550);
+            this.timer += 25;
+
+            if (this.timer > 500) {
+                this.reset();
+            }
+            if (this.timer > 2000) {
+                this.death = false;
+                this.timer = 0;
+            }
+        }
+
     }
 }
 
