@@ -129,13 +129,55 @@ class Block {
     }
 }
 
+// Transition class
+class Transition {
+    constructor(game) {
+        this.game = game;
+        this.reset();
+    }
+
+    reset() {
+        this.timer = 0;
+        this.timerInc = 0;
+        this.type = '';
+        this.complete = true;
+    }
+
+    display() {
+        noStroke();
+        fill(colors[this.game.levelIndex + 2]);
+        rect(this.timer * 0.8 - 500, 0, this.timer, 550);
+
+        this.timer += this.timerInc;
+
+        if (this.type == 'death') {
+            this.game.player.xv = 0;
+            this.game.player.yv = 0;
+            this.timerInc = 25;
+
+            if (this.timer > 500) {
+                this.game.reset();
+            }
+
+            if (this.timer > 1500) {
+                this.reset();
+            }
+        }
+    }
+
+    trigger(type) {
+        this.complete = false;
+        this.type = type;
+    }
+}
+
 // Game class
 class Game {
     constructor() {
+        this.transition = new Transition(this);
         this.levelIndex = 0;
-        this.death = false;
         this.timer = 0;
-        this.intro = false;
+        this.intro = true;
         this.reset();
     }
 
@@ -220,7 +262,7 @@ class Game {
             for (const block of this.blocks) {
                 if (block.colorIndex == colors.length - 1) {
                     if (this.checkCollisions(this.player, block)) {
-                        this.death = true;
+                        this.transition.trigger('death');
                     }
                 }
             }
@@ -255,10 +297,11 @@ class Game {
             b.display();
         }
         this.player.display();
-        if (!this.death && this.intro)
+        if (this.transition.complete)
             this.player.update();
         this.portal.display();
         this.collisions();
+        this.transition.display();
 
         // Level intro
         if (!this.intro) {
@@ -270,28 +313,9 @@ class Game {
             text(levels[this.levelIndex].info.name, levels[this.levelIndex].info.x, levels[this.levelIndex].info.y);
 
             this.timer += 5;
-            if (this.timer > 1000) {
+            if (this.timer > 1) {
                 this.timer = 0;
                 this.intro = true;
-            }
-        }
-
-        // Player death transition
-        if (this.death) {
-            this.player.xv = 0;
-            this.player.yv = 0;
-
-            noStroke();
-            fill(colors[this.levelIndex + 2]);
-            rect(this.timer * 0.8 - 500, 0, this.timer, 550);
-            this.timer += 25;
-
-            if (this.timer > 500) {
-                this.reset();
-            }
-            if (this.timer > 3000) {
-                this.death = false;
-                this.timer = 0;
             }
         }
 
