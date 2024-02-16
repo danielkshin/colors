@@ -1,3 +1,4 @@
+// Player class
 class Player {
     constructor(x, y) {
         this.offset = 0.13; // hacky way to solve a minor physics bug
@@ -16,6 +17,7 @@ class Player {
         this.inBlock = false;
     }
 
+    // Update player velocity / color
     update() {
         if (keys[37]) {
             this.xv = -this.speed;
@@ -44,6 +46,7 @@ class Player {
         }
     }
 
+    // Change player color
     changeColor() {
         if (!this.inBlock) {
             this.colorIndex += 1;
@@ -55,6 +58,7 @@ class Player {
         }
     }
 
+    // Display player
     display() {
         noStroke();
         fill(this.color);
@@ -62,6 +66,8 @@ class Player {
     }
 }
 
+
+// Portal class
 class Portal {
     constructor(x, y, colorIndex) {
         this.x = x;
@@ -72,6 +78,7 @@ class Portal {
         this.color = allColors[this.colorIndex];
     }
 
+    // Display portal
     display() {
         strokeWeight(2);
         stroke(this.color);
@@ -80,6 +87,7 @@ class Portal {
     }
 }
 
+// Block class
 class Block {
     constructor(x, y, colorIndex) {
         this.x = x;
@@ -90,6 +98,7 @@ class Block {
         this.color = colors[this.colorIndex];
     }
 
+    // Display class
     display() {
         noStroke();
         fill(this.color);
@@ -97,16 +106,19 @@ class Block {
     }
 }
 
+// Game class
 class Game {
     constructor() {
         this.levelIndex = 0;
         this.reset();
     }
 
+    // Reset level
     reset() {
         this.generateLevel(levels[this.levelIndex]['level']);
     }
 
+    // Generate level
     generateLevel(level) {
         this.blocks = [];
         for (let i = 0; i < level.length; i++) {
@@ -122,6 +134,7 @@ class Game {
         }
     }
 
+    // Check for collisions
     checkCollisions(r1, r2) {
         return (
             r1.x < r2.x + r2.w &&
@@ -131,15 +144,19 @@ class Game {
         );
     }
 
+    // Game collisions
     collisions() {
+        // Player x axis movement
         this.player.x += this.player.xv;
 
+        // Game bounds
         if (this.player.x < 0) {
             this.player.x = 0;
         } else if (this.player.x + this.player.w > 700) {
             this.player.x = 700 - this.player.w;
         }
 
+        // Collision on x axis with blocks
         for (const block of this.blocks) {
             if (this.player.colorIndex != block.colorIndex && block.colorIndex != colors.length - 1) {
                 if (this.checkCollisions(this.player, block)) {
@@ -152,9 +169,11 @@ class Game {
             }
         }
 
+        // Player y axis movement
         this.player.y += this.player.yv;
         this.player.yv += this.player.g;
 
+        // Collision on y axis with blocks
         for (const block of this.blocks) {
             if (this.player.colorIndex != block.colorIndex && block.colorIndex != colors.length - 1) {
                 if (this.checkCollisions(this.player, block)) {
@@ -170,6 +189,7 @@ class Game {
             }
         }
 
+        // Collision with death block (undiscovered color)
         if (this.levelIndex != 0) {
             for (const block of this.blocks) {
                 if (block.colorIndex == colors.length - 1) {
@@ -180,6 +200,7 @@ class Game {
             }
         }
 
+        // Collision with portal
         if (this.checkCollisions(this.player, this.portal)) {
             if (this.levelIndex != 0)
                 colors.push(allColors[colors.length]);
@@ -187,6 +208,7 @@ class Game {
             this.reset();
         }
 
+        // Collision with block of same color (in block)
         for (const block of this.blocks) {
             if (this.player.colorIndex == block.colorIndex) {
                 if (this.checkCollisions(this.player, block)) {
@@ -200,6 +222,7 @@ class Game {
 
     }
 
+    // Display game
     display() {
         for (const b of this.blocks) {
             b.display();
@@ -211,223 +234,13 @@ class Game {
     }
 }
 
-let colors;
-let game;
-const levels = [
-    {
-        "name": "the two tranquil trees",
-        "hint": "Instead of going through the trees, climb over them.",
-        "level": [
-            "                            ",
-            "                            ",
-            "                            ",
-            "                            ",
-            "                            ",
-            "                            ",
-            "                            ",
-            "                            ",
-            "                1111        ",
-            "              1111111       ",
-            "             11121111       ",
-            "        222  111211111      ",
-            "       22222 122101121      ",
-            "      222222  11000121      ",
-            "      222222    11001       ",
-            "      212122      20        ",
-            "        11        20        ",
-            "  p      1       2220    o  ",
-            " 000     1     2222220  000 ",
-            "0000000000000000000000000000",
-            "0000000000000000000000000000",
-            "0000000000000000000000000000",
-        ],
-    },
-    {
-        "name": "the secret below the volcano",
-        "color": "red",
-        "hint": "Take the darker path down the volcano.",
-        "level": [
-            "    221111122               ",
-            "    211111112               ",
-            "     11111111               ",
-            "      111111                ",
-            "      11111                 ",
-            "     0333332                ",
-            "    0033333222              ",
-            " p 0023333322222            ",
-            " 0002333333322222           ",
-            "00222333333322222221        ",
-            "222233333333222222111       ",
-            "22223333333332223222111     ",
-            "222233333333322233222211    ",
-            "2223333003333322233222211   ",
-            "223333000033332223322222111 ",
-            "2333330020333322222222221111",
-            "3333332222333332222222211111",
-            "3333332222333332222222211111",
-            "3333332222233322222211111111",
-            "3333322222233322222111111111",
-            "33333222o2233322221111111133",
-            "3333332000223222111113113333",
-            "0000000000222222033330000000",
-            "0000000000000000000000000000",
-        ],
-    },
-    {
-        "name": "rising with the flame",
-        "color": "orange",
-        "hint": "Take the right path up the smoke.",
-        "level": [
-            "                            ",
-            "                            ",
-            "            1     o1        ",
-            "           11     111       ",
-            "           11  4   11       ",
-            "       3                    ",
-            "              1     3       ",
-            "             11     43      ",
-            "             1      43      ",
-            "         3                  ",
-            "        343    3   4   11   ",
-            "         3    333 43  111   ",
-            "              3433    111   ",
-            "             3344333 111    ",
-            "             3444443        ",
-            "        2   334444433       ",
-            "        22  3444444443      ",
-            "      4 22  3444444443      ",
-            "     24422  3444444443      ",
-            "     222222234444422222221  ",
-            "      222222222222222222111 ",
-            " p 44 222222222222222222211 ",
-            "0000000000000000000000000000",
-        ],
-    },
-    {
-        "name": "the tricky path up the pyramid",
-        "color": "yellow",
-        "hint": "Be patient and think before moving.",
-        "level": [
-            "                            ",
-            "   44                       ",
-            "  4554       111       444  ",
-            "  4o5411    11111   4444    ",
-            " 14411111                   ",
-            "  111111                    ",
-            "                 5    4     ",
-            "               555   544    ",
-            "             555    55454   ",
-            "                   4554554  ",
-            " 55  p      555   455544554 ",
-            "55   22    55    55555545554",
-            "     22   55    455555545555",
-            "   2 22 2      4555555544555",
-            "   2 2222     55555555554555",
-            "   222222    555555555554555",
-            "     22     4555555555554555",
-            "     22    45555555555554555",
-            "5555 22   444444555555554444",
-            "5555555555555544444444444555",
-            "5555555555555555555555555555",
-            "5555555555555555555555555555",
-        ],
-    },
-    {
-        "name": "the starry night of the fruitful forrest",
-        "color": "green",
-        "hint": "Climb the orange tree by carefully navigating.",
-        "level": [
-            "2222222222222222222222222222",
-            "2222225222222222222o22222222",
-            "2222222222522222222222222252",
-            "2225222225 22252222666662222",
-            "2222222225 22222266466666222",
-            "2222222222522222666664666622",
-            "     22222      646666664622",
-            " p              6666666666  ",
-            "65     6663     6646666466  ",
-            "66     63666     66661666   ",
-            "666   6666663       1264    ",
-            "6665  3663666    4  11      ",
-            "5666  6666666   111 11      ",
-            "666    66166      1111      ",
-            "66       11         111166  ",
-            "11 5     1111       12 66   ",
-            "1111     21         11      ",
-            "11       11        6112     ",
-            "11      2111      6611166  6",
-            "111     1111    4 6111111666",
-            "2226666622226666662222222266",
-            "6666666666666666666666666666",
-        ],
-    },
-    {
-        "name": "hidden within the waterfall",
-        "color": "blue",
-        "hint": "Climb the tree to climb the waterfall.",
-        "level": [
-            "                            ",
-            "                            ",
-            "                            ",
-            "                            ",
-            "                            ",
-            "55                          ",
-            "455                 66666666",
-            "5545                2  00000",
-            "5555               2222200 0",
-            "5454              77222 0000",
-            "4555      7      777722000  ",
-            "55     7       2277772220   ",
-            "2            7   7777       ",
-            "2 22  7          7777       ",
-            "222       1   1117777       ",
-            "2       1111111117777       ",
-            "2        111111117777       ",
-            "22           7  77777       ",
-            "222 p          777777     o ",
-            "666666777772277777777    000",
-            "6666666777777777777722222000",
-            "6666666667777777772222222200",
-            "7777777777777777777777777777",
-        ],
-    },
-    {
-        "name": "someplace familiar",
-        "hint": "This is the end. Thank you for playing.",
-        "level": [
-            "7777777777777777777777777777",
-            "7777447777777777777777777777",
-            "7774554777777777777777777777",
-            "7774554  7777777777777777777",
-            "777744    777777777777777777",
-            "7777777777777777777777777777",
-            "77777777777        777777777",
-            "7777777                77777",
-            "                3666        ",
-            "              6666666       ",
-            "             63626366       ",
-            "        666  666266666      ",
-            "       36666 622626626      ",
-            "      666636  66222623      ",
-            "      366666    36226       ",
-            "      626263      22        ",
-            "        22        22        ",
-            "  p      2       2222       ",
-            " 000     2     2222222      ",
-            "6666666666666666666666666666",
-            "6666666666666666666666666666",
-            "6666666666666666666666666666",
-            "0000000000000000000000000000",
-            "000000000000000000000000000o",
-        ],
-    },
-]
-
-
+// Set up program
 function setup() {
+    // Set up canvas
     pixelDensity(1);
     createCanvas(700, 550);
 
+    // Color palette
     allColors = [
         color(0, 0, 0),  // Black(solid block)
         color(140, 140, 140),  // Gray(player)
@@ -440,20 +253,233 @@ function setup() {
         color(60, 60, 60),  // Dark Gray
         color(60, 60, 60),  // Dark Gray
     ]
-
     colors = allColors.slice(0, 4);
 
+    // Keyboard data
+    keys = [];
+
+    // Level data
+    levels = [
+        {
+            "name": "the two tranquil trees",
+            "hint": "Instead of going through the trees, climb over them.",
+            "level": [
+                "                            ",
+                "                            ",
+                "                            ",
+                "                            ",
+                "                            ",
+                "                            ",
+                "                            ",
+                "                            ",
+                "                1111        ",
+                "              1111111       ",
+                "             11121111       ",
+                "        222  111211111      ",
+                "       22222 122101121      ",
+                "      222222  11000121      ",
+                "      222222    11001       ",
+                "      212122      20        ",
+                "        11        20        ",
+                "  p      1       2220    o  ",
+                " 000     1     2222220  000 ",
+                "0000000000000000000000000000",
+                "0000000000000000000000000000",
+                "0000000000000000000000000000",
+            ],
+        },
+        {
+            "name": "the secret below the volcano",
+            "color": "red",
+            "hint": "Take the darker path down the volcano.",
+            "level": [
+                "    221111122               ",
+                "    211111112               ",
+                "     11111111               ",
+                "      111111                ",
+                "      11111                 ",
+                "     0333332                ",
+                "    0033333222              ",
+                " p 0023333322222            ",
+                " 0002333333322222           ",
+                "00222333333322222221        ",
+                "222233333333222222111       ",
+                "22223333333332223222111     ",
+                "222233333333322233222211    ",
+                "2223333003333322233222211   ",
+                "223333000033332223322222111 ",
+                "2333330020333322222222221111",
+                "3333332222333332222222211111",
+                "3333332222333332222222211111",
+                "3333332222233322222211111111",
+                "3333322222233322222111111111",
+                "33333222o2233322221111111133",
+                "3333332000223222111113113333",
+                "0000000000222222033330000000",
+                "0000000000000000000000000000",
+            ],
+        },
+        {
+            "name": "rising with the flame",
+            "color": "orange",
+            "hint": "Take the right path up the smoke.",
+            "level": [
+                "                            ",
+                "                            ",
+                "            1     o1        ",
+                "           11     111       ",
+                "           11  4   11       ",
+                "       3                    ",
+                "              1     3       ",
+                "             11     43      ",
+                "             1      43      ",
+                "         3                  ",
+                "        343    3   4   11   ",
+                "         3    333 43  111   ",
+                "              3433    111   ",
+                "             3344333 111    ",
+                "             3444443        ",
+                "        2   334444433       ",
+                "        22  3444444443      ",
+                "      4 22  3444444443      ",
+                "     24422  3444444443      ",
+                "     222222234444422222221  ",
+                "      222222222222222222111 ",
+                " p 44 222222222222222222211 ",
+                "0000000000000000000000000000",
+            ],
+        },
+        {
+            "name": "the tricky path up the pyramid",
+            "color": "yellow",
+            "hint": "Be patient and think before moving.",
+            "level": [
+                "                            ",
+                "   44                       ",
+                "  4554       111       444  ",
+                "  4o5411    11111   4444    ",
+                " 14411111                   ",
+                "  111111                    ",
+                "                 5    4     ",
+                "               555   544    ",
+                "             555    55454   ",
+                "                   4554554  ",
+                " 55  p      555   455544554 ",
+                "55   22    55    55555545554",
+                "     22   55    455555545555",
+                "   2 22 2      4555555544555",
+                "   2 2222     55555555554555",
+                "   222222    555555555554555",
+                "     22     4555555555554555",
+                "     22    45555555555554555",
+                "5555 22   444444555555554444",
+                "5555555555555544444444444555",
+                "5555555555555555555555555555",
+                "5555555555555555555555555555",
+            ],
+        },
+        {
+            "name": "the starry night of the fruitful forrest",
+            "color": "green",
+            "hint": "Climb the orange tree by carefully navigating.",
+            "level": [
+                "2222222222222222222222222222",
+                "2222225222222222222o22222222",
+                "2222222222522222222222222252",
+                "2225222225 22252222666662222",
+                "2222222225 22222266466666222",
+                "2222222222522222666664666622",
+                "     22222      646666664622",
+                " p              6666666666  ",
+                "65     6663     6646666466  ",
+                "66     63666     66661666   ",
+                "666   6666663       1264    ",
+                "6665  3663666    4  11      ",
+                "5666  6666666   111 11      ",
+                "666    66166      1111      ",
+                "66       11         111166  ",
+                "11 5     1111       12 66   ",
+                "1111     21         11      ",
+                "11       11        6112     ",
+                "11      2111      6611166  6",
+                "111     1111    4 6111111666",
+                "2226666622226666662222222266",
+                "6666666666666666666666666666",
+            ],
+        },
+        {
+            "name": "hidden within the waterfall",
+            "color": "blue",
+            "hint": "Climb the tree to climb the waterfall.",
+            "level": [
+                "                            ",
+                "                            ",
+                "                            ",
+                "                            ",
+                "                            ",
+                "55                          ",
+                "455                 66666666",
+                "5545                2  00000",
+                "5555               2222200 0",
+                "5454              77222 0000",
+                "4555      7      777722000  ",
+                "55     7       2277772220   ",
+                "2            7   7777       ",
+                "2 22  7          7777       ",
+                "222       1   1117777       ",
+                "2       1111111117777       ",
+                "2        111111117777       ",
+                "22           7  77777       ",
+                "222 p          777777     o ",
+                "666666777772277777777    000",
+                "6666666777777777777722222000",
+                "6666666667777777772222222200",
+                "7777777777777777777777777777",
+            ],
+        },
+        {
+            "name": "someplace familiar",
+            "hint": "This is the end. Thank you for playing.",
+            "level": [
+                "7777777777777777777777777777",
+                "7777447777777777777777777777",
+                "7774554777777777777777777777",
+                "7774554  7777777777777777777",
+                "777744    777777777777777777",
+                "7777777777777777777777777777",
+                "77777777777        777777777",
+                "7777777                77777",
+                "                3666        ",
+                "              6666666       ",
+                "             63626366       ",
+                "        666  666266666      ",
+                "       36666 622626626      ",
+                "      666636  66222623      ",
+                "      366666    36226       ",
+                "      626263      22        ",
+                "        22        22        ",
+                "  p      2       2222       ",
+                " 000     2     2222222      ",
+                "6666666666666666666666666666",
+                "6666666666666666666666666666",
+                "6666666666666666666666666666",
+                "0000000000000000000000000000",
+                "000000000000000000000000000o",
+            ],
+        },
+    ]
+
+    // Create game
     game = new Game();
 }
 
-
-let keys = [];
+// Draw the program
 function draw() {
     background(240);
     game.display();
-    frameRate(60);
 }
 
+// Keyboard interactions
 function keyPressed() {
     keys[keyCode] = true;
 };
