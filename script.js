@@ -58,11 +58,31 @@ class Player {
         }
     }
 
+    // Get previous / next player color
+    getColor(index) {
+        if (index > colors.length - 2) {
+            return colors[1];
+        } else if (index < 1) {
+            return colors[colors.length - 2];
+        } else {
+            return colors[index];
+        }
+    }
+
     // Display player
     display() {
         noStroke();
         fill(this.color);
         rect(this.x - this.offset, this.y - this.offset, 25, 25);
+
+        // Color preview bars
+        if (keys[16]) {
+            fill(this.getColor(this.colorIndex - 1));
+            rect(this.x - this.offset - 4, this.y - this.offset + 3, 2, 19);
+
+            fill(this.getColor(this.colorIndex + 1));
+            rect(this.x - this.offset + 27, this.y - this.offset + 3, 2, 19);
+        }
     }
 }
 
