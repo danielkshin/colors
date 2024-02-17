@@ -147,13 +147,8 @@ class Transition {
     }
 
     display() {
-        noStroke();
-        fill(colors[this.game.levelIndex + 2]);
-        rect(this.x, 0, this.w, 550);
-
-        this.timer += this.timerInc;
-
         if (this.type != '') {
+            this.timer += this.timerInc;
             this.game.player.xv = 0;
             this.game.player.yv = 0;
         }
@@ -163,6 +158,10 @@ class Transition {
             this.w = this.timer;
             this.timerInc = 25;
 
+            noStroke();
+            fill(colors[this.game.levelIndex + 2]);
+            rect(this.x, 0, this.w, 550);
+
             if (this.timer > 500) {
                 this.game.reset();
             }
@@ -171,41 +170,28 @@ class Transition {
                 this.reset();
             }
         } else if (this.type == 'levelComplete') {
-            if (this.scene == 0) {
-                this.x = this.timer * 0.8 - 500;
-                this.w = this.timer;
-                this.timerInc = 25;
-                if (this.x > -10) {
-                    this.timer = 0;
-                    this.timerInc = 3;
-                    this.scene++;
-                }
-            } else if (this.scene == 1) {
-                this.w = 700;
+            if (this.x == 0)
+                this.timerInc = 12;
 
-                fill(240, 240, 240, this.timer);
-                textFont('monospace');
-                textAlign(CENTER);
-                textSize(25);
-                text(levels[this.game.levelIndex].name, 350, 200);
+            noStroke();
+            fill(red(colors[this.game.levelIndex + 2]), green(colors[this.game.levelIndex + 2]), blue(colors[this.game.levelIndex + 2]), this.timer);
+            rect(0, 0, 700, 550);
 
-                if (this.timer > 500) {
-                    this.timerInc = -3;
-                }
 
-                if (this.timer < 0) {
-                    this.timer = 700;
-                    this.timerInc = 25;
-                    this.scene++;
-                }
-            } else if (this.scene == 2) {
-                this.x = this.timer * 0.8 - 500;
-                this.w = this.timer;
+            fill(240, 240, 240, this.timer * 0.5 - 300);
+            textFont('monospace');
+            textAlign(CENTER);
+            textSize(25);
+            text(levels[this.game.levelIndex].name, 350, 230);
+
+            if (this.timer > 1700) {
                 this.game.reset();
+                this.x = 1;
+                this.timerInc = -12;
+            }
 
-                if (this.x > 800) {
-                    this.reset();
-                }
+            if (this.timer < 0) {
+                this.reset();
             }
         }
     }
@@ -223,6 +209,7 @@ class Game {
         this.transition = new Transition(this);
         this.levelIndex = 0;
         this.timer = 0;
+        // this.transition.trigger('levelComplete');
         this.reset();
     }
 
@@ -365,7 +352,7 @@ function setup() {
         color(230, 210, 100),  // Y
         color(120, 170, 120),  // G
         color(100, 150, 170),  // B
-        color(240, 240, 240),  // Background White
+        color(60, 60, 60),  // Dark Gray
         color(60, 60, 60),  // Dark Gray
     ]
     colors = allColors.slice(0, 4);
