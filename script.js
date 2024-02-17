@@ -248,7 +248,7 @@ class Game {
     }
 
     // Check for collisions
-    checkCollisions(r1, r2) {
+    rectCollision(r1, r2) {
         return (
             r1.x < r2.x + r2.w &&
             r1.y < r2.y + r2.h &&
@@ -258,7 +258,7 @@ class Game {
     }
 
     // Game collisions
-    collisions() {
+    checkCollisions() {
         // Player x axis movement
         this.player.x += this.player.xv;
 
@@ -269,10 +269,23 @@ class Game {
             this.player.x = 700 - this.player.w;
         }
 
+        // Collision with block of same color (in block)
+        for (const block of this.blocks) {
+            if (this.player.colorIndex == block.colorIndex) {
+                if (this.rectCollision(this.player, block)) {
+                    this.player.onGround = false;
+                    this.player.inBlock = true;
+                    break;
+                } else {
+                    this.player.inBlock = false;
+                }
+            }
+        }
+
         // Collision on x axis with blocks
         for (const block of this.blocks) {
             if (this.player.colorIndex != block.colorIndex && block.colorIndex != colors.length - 1) {
-                if (this.checkCollisions(this.player, block)) {
+                if (this.rectCollision(this.player, block)) {
                     if (this.player.xv < 0) {
                         this.player.x = block.x + block.w;
                     } else if (this.player.xv > 0) {
@@ -289,7 +302,7 @@ class Game {
         // Collision on y axis with blocks
         for (const block of this.blocks) {
             if (this.player.colorIndex != block.colorIndex && block.colorIndex != colors.length - 1) {
-                if (this.checkCollisions(this.player, block)) {
+                if (this.rectCollision(this.player, block)) {
                     if (this.player.yv > 0) {
                         this.player.onGround = true;
                         this.player.yv = 0
@@ -306,7 +319,7 @@ class Game {
         if (this.levelIndex != 0) {
             for (const block of this.blocks) {
                 if (block.colorIndex == colors.length - 1) {
-                    if (this.checkCollisions(this.player, block)) {
+                    if (this.rectCollision(this.player, block)) {
                         this.transition.trigger('death');
                     }
                 }
@@ -314,25 +327,12 @@ class Game {
         }
 
         // Collision with portal
-        if (this.checkCollisions(this.player, this.portal) && this.transition.complete) {
+        if (this.rectCollision(this.player, this.portal) && this.transition.complete) {
             if (this.levelIndex != 0)
                 colors.push(allColors[colors.length]);
             this.levelIndex++;
             this.transition.trigger('levelComplete');
         }
-
-        // Collision with block of same color (in block)
-        for (const block of this.blocks) {
-            if (this.player.colorIndex == block.colorIndex) {
-                if (this.checkCollisions(this.player, block)) {
-                    this.player.inBlock = true;
-                    break;
-                } else {
-                    this.player.inBlock = false;
-                }
-            }
-        }
-
     }
 
     // Display game
@@ -344,7 +344,7 @@ class Game {
         if (this.transition.complete)
             this.player.update();
         this.portal.display();
-        this.collisions();
+        this.checkCollisions();
         this.transition.display();
     }
 }
