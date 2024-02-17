@@ -149,8 +149,10 @@ class Transition {
     display() {
         if (this.type != '') {
             this.timer += this.timerInc;
-            this.game.player.xv = 0;
-            this.game.player.yv = 0;
+            if (this.type != 'startGame') {
+                this.game.player.xv = 0;
+                this.game.player.yv = 0;
+            }
         }
 
         if (this.type == 'death') {
@@ -169,7 +171,7 @@ class Transition {
             if (this.x > 700) {
                 this.reset();
             }
-        } else if (this.type == 'levelComplete') {
+        } else if (this.type == 'levelComplete' || this.type == 'startGame') {
             if (this.x == 0)
                 this.timerInc = 12;
 
@@ -185,6 +187,8 @@ class Transition {
             text(levels[this.game.levelIndex].name, 350, 230);
 
             if (this.timer > 1700) {
+                if (this.type == 'startGame')
+                    this.game.scene = 'game';
                 this.game.reset();
                 this.x = 1;
                 this.timerInc = -12;
@@ -209,8 +213,7 @@ class Game {
         this.transition = new Transition(this);
         this.levelIndex = 0;
         this.timer = 0;
-        // this.transition.trigger('levelComplete');
-        this.reset();
+        this.scene = 'menu';
     }
 
     // Reset level
@@ -324,15 +327,50 @@ class Game {
 
     // Display game
     display() {
-        for (const b of this.blocks) {
-            b.display();
+        if (this.scene == 'menu') {
+            this.timer += 1;
+
+            textFont('monospace');
+            textAlign(CENTER);
+
+            for (let i = 0; i < 6; i++) {
+                fill(red(allColors[3 + i]), green(allColors[3 + i]), blue(allColors[3 + i]), sin((this.timer - i * 20) / 70) * 500);
+                textSize(60);
+                text('colors'.substring(i, i + 1), 175 + i * 70, 230);
+            }
+
+            for (let i = 0; i < 11; i++) {
+                fill(60, 60, 60, sin((this.timer - i * 10 - 220) / 70) * 500);
+                textSize(30);
+                text('daniel shin'.substring(i, i + 1), 175 + i * 35, 230);
+            }
+
+
+            fill(60, 60, 60);
+            textSize(12);
+            text('press [space] to play', 350, 290);
+
+            fill(60, 60, 60, sin(this.timer / 70) * 500);
+            text('controls', 350, 460);
+
+            fill(60, 60, 60, -sin(this.timer / 70) * 500);
+            text('[w] [a] [d] [shift] [space]\n[<] [^] [>]                ', 350, 460);
+
+            this.transition.display();
+            if (keys[32]) {
+                this.transition.trigger('startGame');
+            }
+        } else if (this.scene == 'game') {
+            for (const b of this.blocks) {
+                b.display();
+            }
+            this.player.display();
+            if (this.transition.complete)
+                this.player.update();
+            this.portal.display();
+            this.checkCollisions();
+            this.transition.display();
         }
-        this.player.display();
-        if (this.transition.complete)
-            this.player.update();
-        this.portal.display();
-        this.checkCollisions();
-        this.transition.display();
     }
 }
 
