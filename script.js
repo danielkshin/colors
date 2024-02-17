@@ -20,15 +20,15 @@ class Player {
 
     // Update player velocity / color
     update() {
-        if (keys[37]) {
+        if (keys[37] || keys[65]) {
             this.xv = -this.speed;
-        } else if (keys[39]) {
+        } else if (keys[39] || keys[68]) {
             this.xv = this.speed;
         } else {
             this.xv = 0;
         }
 
-        if (keys[38] && this.onGround == true) {
+        if ((keys[38] || keys[87]) && this.onGround == true) {
             this.yv = -8.75;
             this.onGround = false;
         }
