@@ -137,8 +137,6 @@ class Transition {
     }
 
     reset() {
-        this.x = 0;
-        this.w = 0;
         this.timer = 0;
         this.timerInc = 0;
         this.type = '';
@@ -156,45 +154,38 @@ class Transition {
         }
 
         if (this.type == 'death') {
-            this.x = this.timer * 0.8 - 500;
-            this.w = this.timer;
             this.timerInc = 25;
 
             noStroke();
             fill(colors[this.game.levelIndex + 2]);
-            rect(this.x, 0, this.w, 550);
+            rect(this.timer * 0.8 - 500, 0, this.timer, 550);
 
             if (this.timer > 500) {
                 this.game.reset();
             }
 
-            if (this.x > 700) {
+            if (this.timer > 1500) {
                 this.reset();
             }
         } else if (this.type == 'levelComplete' || this.type == 'startGame') {
-            if (this.x == 0)
-                this.timerInc = 12;
+            this.timerInc = 1;
 
             noStroke();
-            fill(red(colors[this.game.levelIndex + 2]), green(colors[this.game.levelIndex + 2]), blue(colors[this.game.levelIndex + 2]), this.timer);
+            fill(red(colors[this.game.levelIndex + 2]), green(colors[this.game.levelIndex + 2]), blue(colors[this.game.levelIndex + 2]), sin(this.timer * 0.01) * 1000);
             rect(0, 0, 700, 550);
 
-
-            fill(240, 240, 240, this.timer * 0.5 - 300);
             textFont('monospace');
             textAlign(CENTER);
             textSize(25);
+            fill(240, 240, 240, sin((this.timer) * 0.01) * 1000 - 500);
             text(levels[this.game.levelIndex].name, 350, 230);
 
-            if (this.timer > 1700) {
+            if (this.timer > 150) {
                 if (this.type == 'startGame')
                     this.game.scene = 'game';
                 this.game.reset();
-                this.x = 1;
-                this.timerInc = -12;
             }
-
-            if (this.timer < 0) {
+            if (sin(this.timer * 0.01) * 1000 < 0) {
                 this.reset();
             }
         }
@@ -205,12 +196,48 @@ class Transition {
     }
 }
 
+// Menu class
+class Menu {
+    constructor() {
+        this.timer = 0;
+    }
 
+    display() {
+        this.timer++;
+
+        textFont('monospace');
+        textAlign(CENTER);
+
+        for (let i = 0; i < 6; i++) {
+            textSize(60);
+            fill(red(allColors[3 + i]), green(allColors[3 + i]), blue(allColors[3 + i]), sin((this.timer - i * 20) / 70) * 500);
+            text('colors'.substring(i, i + 1), 175 + i * 70, 230);
+        }
+
+        for (let i = 0; i < 11; i++) {
+            textSize(30);
+            fill(60, 60, 60, sin((this.timer - i * 10 - 220) / 70) * 500);
+            text('daniel shin'.substring(i, i + 1), 175 + i * 35, 230);
+        }
+
+        textSize(12);
+        fill(60, 60, 60);
+        text('press [space] to play', 350, 290);
+
+        fill(60, 60, 60, sin(this.timer / 70) * 500);
+        text('controls', 350, 460);
+
+        fill(60, 60, 60, -sin(this.timer / 70) * 500);
+        text('[w] [a] [d] [shift] [space]\n[<] [^] [>]                ', 350, 460);
+    }
+
+}
 
 // Game class
 class Game {
     constructor() {
         this.transition = new Transition(this);
+        this.menu = new Menu();
         this.levelIndex = 0;
         this.timer = 0;
         this.scene = 'menu';
@@ -328,35 +355,9 @@ class Game {
     // Display game
     display() {
         if (this.scene == 'menu') {
-            this.timer += 1;
-
-            textFont('monospace');
-            textAlign(CENTER);
-
-            for (let i = 0; i < 6; i++) {
-                fill(red(allColors[3 + i]), green(allColors[3 + i]), blue(allColors[3 + i]), sin((this.timer - i * 20) / 70) * 500);
-                textSize(60);
-                text('colors'.substring(i, i + 1), 175 + i * 70, 230);
-            }
-
-            for (let i = 0; i < 11; i++) {
-                fill(60, 60, 60, sin((this.timer - i * 10 - 220) / 70) * 500);
-                textSize(30);
-                text('daniel shin'.substring(i, i + 1), 175 + i * 35, 230);
-            }
-
-
-            fill(60, 60, 60);
-            textSize(12);
-            text('press [space] to play', 350, 290);
-
-            fill(60, 60, 60, sin(this.timer / 70) * 500);
-            text('controls', 350, 460);
-
-            fill(60, 60, 60, -sin(this.timer / 70) * 500);
-            text('[w] [a] [d] [shift] [space]\n[<] [^] [>]                ', 350, 460);
-
+            this.menu.display();
             this.transition.display();
+
             if (keys[32]) {
                 this.transition.trigger('startGame');
             }
