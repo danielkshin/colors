@@ -137,39 +137,85 @@ class Transition {
     }
 
     reset() {
+        this.x = 0;
+        this.w = 0;
         this.timer = 0;
         this.timerInc = 0;
         this.type = '';
         this.complete = true;
+        this.scene = 0;
     }
 
     display() {
         noStroke();
         fill(colors[this.game.levelIndex + 2]);
-        rect(this.timer * 0.8 - 500, 0, this.timer, 550);
+        rect(this.x, 0, this.w, 550);
 
         this.timer += this.timerInc;
 
-        if (this.type == 'death') {
+        if (this.type != '') {
             this.game.player.xv = 0;
             this.game.player.yv = 0;
+        }
+
+        if (this.type == 'death') {
+            this.x = this.timer * 0.8 - 500;
+            this.w = this.timer;
             this.timerInc = 25;
 
             if (this.timer > 500) {
                 this.game.reset();
             }
 
-            if (this.timer > 1500) {
+            if (this.x > 700) {
                 this.reset();
+            }
+        } else if (this.type == 'levelComplete') {
+            if (this.scene == 0) {
+                this.x = this.timer * 0.8 - 500;
+                this.w = this.timer;
+                this.timerInc = 25;
+                if (this.x > -10) {
+                    this.timer = 0;
+                    this.timerInc = 3;
+                    this.scene++;
+                }
+            } else if (this.scene == 1) {
+                this.w = 700;
+
+                fill(240, 240, 240, this.timer);
+                textFont('monospace');
+                textAlign(CENTER);
+                textSize(25);
+                text(levels[this.game.levelIndex].name, 350, 200);
+
+                if (this.timer > 500) {
+                    this.timerInc = -3;
+                }
+
+                if (this.timer < 0) {
+                    this.timer = 700;
+                    this.timerInc = 25;
+                    this.scene++;
+                }
+            } else if (this.scene == 2) {
+                this.x = this.timer * 0.8 - 500;
+                this.w = this.timer;
+                this.game.reset();
+
+                if (this.x > 800) {
+                    this.reset();
+                }
             }
         }
     }
-
     trigger(type) {
         this.complete = false;
         this.type = type;
     }
 }
+
+
 
 // Game class
 class Game {
@@ -268,11 +314,11 @@ class Game {
         }
 
         // Collision with portal
-        if (this.checkCollisions(this.player, this.portal)) {
+        if (this.checkCollisions(this.player, this.portal) && this.transition.complete) {
             if (this.levelIndex != 0)
                 colors.push(allColors[colors.length]);
             this.levelIndex++;
-            this.reset();
+            this.transition.trigger('levelComplete');
         }
 
         // Collision with block of same color (in block)
@@ -330,13 +376,7 @@ function setup() {
     // Level data
     levels = [
         {
-            "info": {
-                "name": "the two tranquil trees",
-                "x": 350,
-                "y": 110,
-                "align": CENTER,
-            },
-            "hint": "Instead of going through the trees, climb over them.",
+            "name": "the two tranquil trees",
             "level": [
                 "                            ",
                 "                            ",
@@ -363,14 +403,7 @@ function setup() {
             ],
         },
         {
-            "info": {
-                "name": "the secret below\nthe volcano",
-                "x": 675,
-                "y": 40,
-                "align": RIGHT,
-            },
-            "color": "red",
-            "hint": "Take the darker path down the volcano.",
+            "name": "the secret below the volcano",
             "level": [
                 "    221111122               ",
                 "    211111112               ",
@@ -399,14 +432,7 @@ function setup() {
             ],
         },
         {
-            "info": {
-                "name": "flaring\nup\nwith\nthe\nflame",
-                "x": 25,
-                "y": 50,
-                "align": LEFT,
-            },
-            "color": "orange",
-            "hint": "Take the right path up the smoke.",
+            "name": "rising with the flame",
             "level": [
                 "                            ",
                 "                            ",
@@ -434,14 +460,7 @@ function setup() {
             ],
         },
         {
-            "info": {
-                "name": "the perilous\npath up the    \npyramid        ",
-                "x": 410,
-                "y": 155,
-                "align": RIGHT,
-            },
-            "color": "yellow",
-            "hint": "Be patient and think before moving.",
+            "name": "the tricky path up the pyramid",
             "level": [
                 "                            ",
                 "   44                       ",
@@ -468,12 +487,7 @@ function setup() {
             ],
         },
         {
-            "info": {
-                "name": "              the flashing stars\n\n        of the\nfruitful forest",
-                "x": 10,
-                "y": 35,
-                "align": LEFT,
-            },
+            "name": "the starry night of the fruitful forest",
             "color": "green",
             "hint": "Climb the orange tree by carefully navigating.",
             "level": [
@@ -502,14 +516,7 @@ function setup() {
             ],
         },
         {
-            "info": {
-                "name": "whispers\nwithin the\nwaterfall",
-                "x": 540,
-                "y": 335,
-                "align": LEFT,
-            },
-            "color": "blue",
-            "hint": "Climb the tree to climb the waterfall.",
+            "name": "hidden within the waterfall",
             "level": [
                 "                            ",
                 "                            ",
@@ -537,13 +544,7 @@ function setup() {
             ],
         },
         {
-            "info": {
-                "name": "the conclusion of colors",
-                "x": 320,
-                "y": 85,
-                "align": LEFT,
-            },
-            "hint": "This is the end. Thank you for playing.",
+            "name": "someplace familiar",
             "level": [
                 "7777777777777777777777777777",
                 "7777447777777777777777777777",
