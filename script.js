@@ -172,7 +172,7 @@ class Transition {
             }
         }
         // Level complete / game start transitions
-        else if (this.type == 'levelComplete' || this.type == 'startGame') {
+        else if (this.type == 'levelComplete' || this.type == 'startGame' || this.type == 'hint') {
             this.timerInc = 1;
 
             noStroke();
@@ -181,9 +181,14 @@ class Transition {
 
             textFont('monospace');
             textAlign(CENTER);
-            textSize(25);
-            fill(240, 240, 240, sin((this.timer) * 0.01) * 1000 - 500);
-            text(levels[this.game.levelIndex].name, 350, 230);
+            fill(250, 250, 250, sin((this.timer) * 0.01) * 1000 - 500);
+            if (this.type == 'hint') {
+                textSize(15);
+                text(levels[this.game.levelIndex].hint, 350, 230);
+            } else {
+                textSize(25);
+                text(levels[this.game.levelIndex].name, 350, 230);
+            }
 
             if (this.timer > 150) {
                 if (this.type == 'startGame')
@@ -379,6 +384,10 @@ class Game {
             this.portal.display();
             this.checkCollisions();
             this.transition.display();
+
+            if (keys[72] && this.transition.complete) {
+                this.transition.trigger('hint');
+            }
         }
     }
 }
@@ -412,6 +421,7 @@ function setup() {
     levels = [
         {
             "name": "the two tranquil trees",
+            "hint": "instead of going under the trees,\njump over them.",
             "level": [
                 "                            ",
                 "                            ",
@@ -439,6 +449,7 @@ function setup() {
         },
         {
             "name": "the secret below the volcano",
+            "hint": "take the darker path down the volcano.",
             "level": [
                 "    221111122               ",
                 "    211111112               ",
@@ -468,6 +479,7 @@ function setup() {
         },
         {
             "name": "rising with the flame",
+            "hint": "take the right path up the smoke.",
             "level": [
                 "                            ",
                 "                            ",
@@ -496,6 +508,7 @@ function setup() {
         },
         {
             "name": "the tricky path up the pyramid",
+            "hint": "be patient and think before jumping.",
             "level": [
                 "                            ",
                 "   44                       ",
@@ -523,8 +536,7 @@ function setup() {
         },
         {
             "name": "the starry night of the fruitful forest",
-            "color": "green",
-            "hint": "Climb the orange tree by carefully navigating.",
+            "hint": "navigate your way down the yellow tree,\nup the orange tree, and atop the red tree.",
             "level": [
                 "2222222222222222222222222222",
                 "2222225222222222222o22222222",
@@ -552,6 +564,7 @@ function setup() {
         },
         {
             "name": "hidden within the waterfall",
+            "hint": "jump from the top of the tree\nto climb the waterfall.",
             "level": [
                 "                            ",
                 "                            ",
@@ -580,6 +593,7 @@ function setup() {
         },
         {
             "name": "someplace familiar",
+            "hint": "this is the end,\nthank you for playing.",
             "level": [
                 "7777777777777777777777777777",
                 "7777447777777777777777777777",
