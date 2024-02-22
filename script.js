@@ -1,7 +1,7 @@
 // Player class
 class Player {
     constructor(x, y) {
-        this.offset = 0.13; // hacky way to solve a minor physics bug
+        this.offset = 0.13;
         this.x = x + this.offset;
         this.y = y + this.offset;
         this.w = 25 - this.offset * 2;
@@ -136,6 +136,7 @@ class Transition {
         this.reset();
     }
 
+    // Reset transition
     reset() {
         this.timer = 0;
         this.timerInc = 0;
@@ -144,6 +145,7 @@ class Transition {
         this.scene = 0;
     }
 
+    // Display transition
     display() {
         if (this.type != '') {
             this.timer += this.timerInc;
@@ -153,6 +155,7 @@ class Transition {
             }
         }
 
+        // Death transition
         if (this.type == 'death') {
             this.timerInc = 25;
 
@@ -167,7 +170,9 @@ class Transition {
             if (this.timer > 1500) {
                 this.reset();
             }
-        } else if (this.type == 'levelComplete' || this.type == 'startGame') {
+        }
+        // Level complete / game start transitions
+        else if (this.type == 'levelComplete' || this.type == 'startGame') {
             this.timerInc = 1;
 
             noStroke();
@@ -190,6 +195,8 @@ class Transition {
             }
         }
     }
+
+    // Trigger transition
     trigger(type) {
         this.complete = false;
         this.type = type;
@@ -202,6 +209,7 @@ class Menu {
         this.timer = 0;
     }
 
+    // Display menu
     display() {
         this.timer++;
 
@@ -226,7 +234,6 @@ class Menu {
 
         fill(60, 60, 60, -sin(this.timer / 70) * 500);
         text('created with p5.js', 350, 290);
-
 
         textSize(10);
         fill(100, 100, 100);
