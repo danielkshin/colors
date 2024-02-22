@@ -242,7 +242,7 @@ class Menu {
 
         textSize(10);
         fill(100, 100, 100);
-        text('movement          color   \n[w] [a] [d]   preview [shift]\n[<] [^] [>]    change [space]', 350, 500);
+        text('movement          color        hint\n[w] [a] [d]   preview [shift]    [h]  \n[<] [^] [>]    change [space]         ', 350, 500);
     }
 
 }
