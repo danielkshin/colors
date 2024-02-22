@@ -221,14 +221,16 @@ class Menu {
         }
 
         textSize(12);
-        fill(60, 60, 60);
+        fill(60, 60, 60, sin(this.timer / 70) * 500);
         text('press [space] to play', 350, 290);
 
-        fill(60, 60, 60, sin(this.timer / 70) * 500);
-        text('controls', 350, 460);
-
         fill(60, 60, 60, -sin(this.timer / 70) * 500);
-        text('[w] [a] [d] [shift] [space]\n[<] [^] [>]                ', 350, 460);
+        text('created with p5.js', 350, 290);
+
+
+        textSize(10);
+        fill(100, 100, 100);
+        text('movement          color   \n[w] [a] [d]   preview [shift]\n[<] [^] [>]    change [space]', 350, 500);
     }
 
 }
@@ -239,7 +241,6 @@ class Game {
         this.transition = new Transition(this);
         this.menu = new Menu();
         this.levelIndex = 0;
-        this.timer = 0;
         this.scene = 'menu';
     }
 
@@ -379,7 +380,8 @@ class Game {
 function setup() {
     // Set up canvas
     pixelDensity(1);
-    createCanvas(700, 550);
+    canvas = createCanvas(700, 550);
+    canvas.parent('game');
 
     // Color palette
     allColors = [
