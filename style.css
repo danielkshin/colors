@@ -1,10 +1,17 @@
 html,
 body {
     height: 99%;
-}
-
-body {
     display: flex;
     justify-content: center;
     align-items: center;
+    text-align: center;
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 12px;
+    color: #494949;
+}
+
+a {
+    color: #8c8c8c;
+    text-decoration: none;
 }
